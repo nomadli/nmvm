@@ -200,10 +200,6 @@ extern VZVirtualMachineConfiguration* gen_vm_config(NMLIVM *vm, VZMacOSConfigura
 extern int gen_macos_vm(NMLIVM *vm) {
     NMLI_LOG_VAR("install macos from %s to %s\n", vm->rimg, vm->vm);
     @autoreleasepool {
-        if (vm->is_macos_restore == 0) {
-            return gen_vm_config(vm, nil) != nil ? 0 : -1;
-        }
-        
         __block NMLIMacosInstallDelegate *delegate = [[NMLIMacosInstallDelegate alloc] init];
         NSURL *rimg = [NSURL fileURLWithPath:[NSString stringWithUTF8String:vm->rimg]];
         [VZMacOSRestoreImage loadFileURL:rimg completionHandler:^(VZMacOSRestoreImage *img, NSError *err) {

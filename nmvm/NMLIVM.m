@@ -301,8 +301,7 @@ __attribute__((__unused__)) static void create_macos_vm(NMLIVM *vm) {
             sprintf(vm->tips,
                     "1. download the last macos system restore image *.ipws\n"
                     "2. select a macos system restore image *.ipws\n"
-                    "3. select a macos install iso\n"
-                    "4. Back to upper menu\n%s> ", vm->who);
+                    "3. Back to upper menu\n%s> ", vm->who);
             vm->cmd = readline(vm->tips);
             if (vm->cmd == NULL || vm->cmd[1] != '\0' ||
                 (vm->cmd[0] != '1' && vm->cmd[0] != '2' && vm->cmd[0] != '3')) {
@@ -320,7 +319,6 @@ __attribute__((__unused__)) static void create_macos_vm(NMLIVM *vm) {
                 }
                 if (download_macos_restore_image(vm) == 0) {
                     start = true;
-                    vm->is_macos_restore = 1;
                 }
                 break;
             }
@@ -329,16 +327,6 @@ __attribute__((__unused__)) static void create_macos_vm(NMLIVM *vm) {
                 sprintf(vm->tips, "Select a macos restore image *.ipws\n%s> ", vm->who);
                 if (get_path(vm, vm->rimg, sizeof(vm->rimg), false) == 0) {
                     start = true;
-                    vm->is_macos_restore = 1;
-                }
-                break;
-            }
-            if (vm->cmd[0] == '3') {
-                free(vm->cmd);
-                sprintf(vm->tips, "Select a macos install iso\n%s> ", vm->who);
-                if (get_path(vm, vm->rimg, sizeof(vm->rimg), false) == 0) {
-                    start = true;
-                    vm->is_macos_restore = 0;
                 }
                 break;
             }
@@ -357,11 +345,7 @@ __attribute__((__unused__)) static void create_macos_vm(NMLIVM *vm) {
         if (gen_macos_vm(vm) != 0) {
             return;
         }
-        if (vm->is_macos_restore != 0) {
-            sprintf(vm->tips, "%s %s &", vm->self_path, vm->vm);
-        } else {
-            sprintf(vm->tips, "%s %s %s &", vm->self_path, vm->vm, vm->rimg);
-        }
+        sprintf(vm->tips, "%s %s &", vm->self_path, vm->vm);
         system(vm->tips);
         exit(0);
     }

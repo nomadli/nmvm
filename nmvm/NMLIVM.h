@@ -30,7 +30,6 @@ typedef struct {
     char                tips[1024];
     char                *cmd;
     const char          *self_path;
-    char                is_macos_restore;
     NMLIVMType          system;
     NMLIVMNetType       net;
     unsigned int        cpu;
