@@ -55,8 +55,8 @@ NS_ASSUME_NONNULL_END
     cfg.CPUCount = vm.cpu;
     cfg.memorySize = vm.mem;
     
-    VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
     if (@available(macOS 13.0, *)) {
+        VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
         NSData *machineIdentifierData = [[NSData alloc] initWithContentsOfURL:NMLI_VM_MACHID(_path)];
         if (machineIdentifierData == nil) {
             [self showAlert:@"Virtual machine identifier not found." abort:YES];
@@ -66,8 +66,8 @@ NS_ASSUME_NONNULL_END
             [self showAlert:@"Failed to create Virtual machine identifier." abort:YES];
         }
         pcfg.machineIdentifier = machineIdentifier;
+        cfg.platform = pcfg;
     }
-    cfg.platform = pcfg;
 
     if (@available(macOS 13.0, *)) {
         VZEFIVariableStore *efi = [[VZEFIVariableStore alloc] initWithURL:NMLI_VM_EFI(_path)];
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_END
     
     NSError *err;
     NSMutableArray *storageDevices = [NSMutableArray arrayWithCapacity:2];
-    VZDiskImageStorageDeviceAttachment *attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:NMLI_VM_DISK(_path) readOnly:YES error:&err];
+    VZDiskImageStorageDeviceAttachment *attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:NMLI_VM_DISK(_path) readOnly:NO error:&err];
     if (attach == nil || err != nil) {
         [self showAlert:err.localizedDescription abort:YES];
     }

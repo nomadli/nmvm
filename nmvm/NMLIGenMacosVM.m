@@ -213,6 +213,7 @@ extern int gen_macos_vm(NMLIVM *vm) {
             VZMacOSConfigurationRequirements *cfg = img.mostFeaturefulSupportedConfiguration;
             if (cfg == nil || !cfg.hardwareModel.supported) {
                 NMLI_LOG("ipsw no have supported Mac configuration! use default configuration.\n");
+                cfg = nil;
             }
             VZVirtualMachineConfiguration *vcfg = gen_vm_config(vm, cfg);
             if (vcfg == nil) {

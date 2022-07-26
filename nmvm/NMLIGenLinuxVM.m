@@ -32,12 +32,12 @@ extern int gen_linux_vm(NMLIVM *vm) {
         cfg.CPUCount = vm->cpu;
         cfg.memorySize = vm->mem;
         
-        VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
         if (@available(macOS 13.0, *)) {
+            VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
             pcfg.machineIdentifier = [[VZGenericMachineIdentifier alloc] init];
             [pcfg.machineIdentifier.dataRepresentation writeToURL:NMLI_VM_MACHID(base) atomically:YES];
+            cfg.platform = pcfg;
         }
-        cfg.platform = pcfg;
         
         NSError *err;
         if (@available(macOS 13.0, *)) {
@@ -60,7 +60,7 @@ extern int gen_linux_vm(NMLIVM *vm) {
             return -3;
         }
         
-        VZDiskImageStorageDeviceAttachment *attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:NMLI_VM_DISK(base) readOnly:YES error:&err];
+        VZDiskImageStorageDeviceAttachment *attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:NMLI_VM_DISK(base) readOnly:NO error:&err];
         if (attach == nil || err != nil) {
             NMLI_LOG_VAR("Failed to create disk store. %s\n", err.localizedDescription.UTF8String);
             return -5;
