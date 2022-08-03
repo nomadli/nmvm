@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		859DCE5E289A8BA500BCC200 /* libreadline.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 859DCE5D289A8BA500BCC200 /* libreadline.tbd */; };
 		D8A1FD9C288C1130000E0642 /* NMLIGenLinuxVM.m in Sources */ = {isa = PBXBuildFile; fileRef = D8A1FD93288C1130000E0642 /* NMLIGenLinuxVM.m */; };
 		D8A1FD9D288C1130000E0642 /* NMLIVM.m in Sources */ = {isa = PBXBuildFile; fileRef = D8A1FD94288C1130000E0642 /* NMLIVM.m */; };
 		D8A1FD9E288C1130000E0642 /* NMLIGenMacosVM.m in Sources */ = {isa = PBXBuildFile; fileRef = D8A1FD95288C1130000E0642 /* NMLIGenMacosVM.m */; };
@@ -29,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		859DCE5D289A8BA500BCC200 /* libreadline.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libreadline.tbd; path = usr/lib/libreadline.tbd; sourceTree = SDKROOT; };
 		D8A1FD89288C10F6000E0642 /* nmvm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = nmvm; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8A1FD93288C1130000E0642 /* NMLIGenLinuxVM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMLIGenLinuxVM.m; sourceTree = "<group>"; };
 		D8A1FD94288C1130000E0642 /* NMLIVM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMLIVM.m; sourceTree = "<group>"; };
@@ -47,17 +49,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				859DCE5E289A8BA500BCC200 /* libreadline.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		859DCE5C289A8BA500BCC200 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				859DCE5D289A8BA500BCC200 /* libreadline.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D8A1FD80288C10F6000E0642 = {
 			isa = PBXGroup;
 			children = (
 				D8A1FD8B288C10F6000E0642 /* nmvm */,
 				D8A1FD8A288C10F6000E0642 /* Products */,
+				859DCE5C289A8BA500BCC200 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -271,10 +283,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = nmvm/nmvm.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8R2BKUG5GC;
+				DEVELOPMENT_TEAM = 25TR5G565J;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nmli.macos.vm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -285,10 +297,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = nmvm/nmvm.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8R2BKUG5GC;
+				DEVELOPMENT_TEAM = 25TR5G565J;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nmli.macos.vm;
 				PRODUCT_NAME = "$(TARGET_NAME)";

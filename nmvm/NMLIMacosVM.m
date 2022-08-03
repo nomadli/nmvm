@@ -112,16 +112,16 @@ NS_ASSUME_NONNULL_END
     }
     NSMutableArray *storages = [NSMutableArray arrayWithCapacity:2];
     [storages addObject: [[VZVirtioBlockDeviceConfiguration alloc] initWithAttachment:attach]];
-    if (@available(macOS 13.0, *)) {
-        for (; _iso != nil; ) {
-            attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:_iso readOnly:YES error:&err];
-            if (attach == nil || err != nil) {
-                NMLI_LOG_VAR("Failed to load %s store. %s\n", _iso.path.UTF8String, err.localizedDescription.UTF8String);
-                break;
-            }
-            [storages addObject: [[VZUSBMassStorageDeviceConfiguration alloc] initWithAttachment:attach]];
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+    for (; _iso != nil; ) {
+        attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:_iso readOnly:YES error:&err];
+        if (attach == nil || err != nil) {
+            NMLI_LOG_VAR("Failed to load %s store. %s\n", _iso.path.UTF8String, err.localizedDescription.UTF8String);
+            break;
         }
+        [storages addObject: [[VZUSBMassStorageDeviceConfiguration alloc] initWithAttachment:attach]];
     }
+#endif
     cfg.storageDevices = [storages copy];
     
     if (vm.net == NMLIVM_NET_NAT) {
@@ -210,27 +210,27 @@ NS_ASSUME_NONNULL_END
         [sself.window setContentView:view];
         [sself.window setInitialFirstResponder:view];
         [sself.window makeKeyAndOrderFront:view];
-        if (@available(macOS 13.0, *)) {
-            VZMacOSVirtualMachineStartOptions *option = [[VZMacOSVirtualMachineStartOptions alloc] init];
-            option.startUpFromMacOSRecovery = NO;
-            if (sself.recovery) {
-                option.startUpFromMacOSRecovery = YES;
-            }
-            [sself.machine startWithOptions:option completionHandler:^(NSError *err) {
-                if (err != nil) {
-                    [self showAlert:err.localizedDescription abort:YES];
-                }
-            }];
-        } else {
-            if (sself.recovery) {
-                [self showAlert:@"Only Macos Version >= 13.0 super boot to recovery!" abort:NO];
-            }
-            [sself.machine startWithCompletionHandler:^(NSError *err) {
-                if (err != nil) {
-                    [self showAlert:err.localizedDescription abort:YES];
-                }
-            }];
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+        VZMacOSVirtualMachineStartOptions *option = [[VZMacOSVirtualMachineStartOptions alloc] init];
+        option.startUpFromMacOSRecovery = NO;
+        if (sself.recovery) {
+            option.startUpFromMacOSRecovery = YES;
         }
+        [sself.machine startWithOptions:option completionHandler:^(NSError *err) {
+            if (err != nil) {
+                [self showAlert:err.localizedDescription abort:YES];
+            }
+        }];
+#else
+        if (sself.recovery) {
+            [self showAlert:@"Only Macos Version >= 13.0 super boot to recovery!" abort:NO];
+        }
+        [sself.machine startWithCompletionHandler:^(NSError *err) {
+            if (err != nil) {
+                [self showAlert:err.localizedDescription abort:YES];
+            }
+        }];
+#endif
     });
 }
 

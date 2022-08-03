@@ -11,6 +11,7 @@
 #import <errno.h>
 #import <unistd.h>
 #import <readline/readline.h>
+#import <Availability.h>
 #import "help.h"
 
 typedef enum {

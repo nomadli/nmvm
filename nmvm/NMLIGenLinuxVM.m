@@ -31,34 +31,32 @@ extern int gen_linux_vm(NMLIVM *vm) {
         VZVirtualMachineConfiguration *cfg = [[VZVirtualMachineConfiguration alloc] init];
         cfg.CPUCount = vm->cpu;
         cfg.memorySize = vm->mem;
-        
-        if (@available(macOS 13.0, *)) {
-            VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
-            pcfg.machineIdentifier = [[VZGenericMachineIdentifier alloc] init];
-            [pcfg.machineIdentifier.dataRepresentation writeToURL:NMLI_VM_MACHID(base) atomically:YES];
-            cfg.platform = pcfg;
-        }
-        
+    
         NSError *err;
-        if (@available(macOS 13.0, *)) {
-            VZEFIVariableStore *efi = [[VZEFIVariableStore alloc] initCreatingVariableStoreAtURL:NMLI_VM_EFI(base)
-                                                                                         options:VZEFIVariableStoreInitializationOptionAllowOverwrite
-                                                                                           error:&err];
-            if (efi == nil || err != nil) {
-                NMLI_LOG_VAR("Failed to create the EFI variable store. %s\n", err.localizedDescription.UTF8String);
-                return -3;
-            }
-            VZEFIBootLoader *bootloader = [[VZEFIBootLoader alloc] init];
-            bootloader.variableStore = efi;
-            cfg.bootLoader = bootloader;
-        } else {
-//            VZLinuxBootLoader *loader = [[VZLinuxBootLoader alloc] initWithKernelURL:base];
-//            loader.initialRamdiskURL = base;
-//            loader.commandLine = @"console=hvc0 rd.break=initqueue";
-//            cfg.bootLoader = loader;
-            NMLI_LOG_VAR("Macos 13.0 supper instll linux frome iso, nmvm not suppor linux kernel image file.\n");
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+        VZGenericPlatformConfiguration *pcfg = [[VZGenericPlatformConfiguration alloc] init];
+        pcfg.machineIdentifier = [[VZGenericMachineIdentifier alloc] init];
+        [pcfg.machineIdentifier.dataRepresentation writeToURL:NMLI_VM_MACHID(base) atomically:YES];
+        cfg.platform = pcfg;
+    
+        VZEFIVariableStore *efi = [[VZEFIVariableStore alloc] initCreatingVariableStoreAtURL:NMLI_VM_EFI(base)
+                                                                                     options:VZEFIVariableStoreInitializationOptionAllowOverwrite
+                                                                                       error:&err];
+        if (efi == nil || err != nil) {
+            NMLI_LOG_VAR("Failed to create the EFI variable store. %s\n", err.localizedDescription.UTF8String);
             return -3;
         }
+        VZEFIBootLoader *bootloader = [[VZEFIBootLoader alloc] init];
+        bootloader.variableStore = efi;
+        cfg.bootLoader = bootloader;
+#else
+//      VZLinuxBootLoader *loader = [[VZLinuxBootLoader alloc] initWithKernelURL:base];
+//      loader.initialRamdiskURL = base;
+//      loader.commandLine = @"console=hvc0 rd.break=initqueue";
+//      cfg.bootLoader = loader;
+        NMLI_LOG_VAR("Macos 13.0 supper instll linux frome iso, nmvm not suppor linux kernel image file.\n");
+        return -3;
+#endif
         
         VZDiskImageStorageDeviceAttachment *attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:NMLI_VM_DISK(base) readOnly:NO error:&err];
         if (attach == nil || err != nil) {
@@ -67,15 +65,15 @@ extern int gen_linux_vm(NMLIVM *vm) {
         }
         NSMutableArray *storageDevices = [NSMutableArray arrayWithCapacity:2];
         [storageDevices addObject:[[VZVirtioBlockDeviceConfiguration alloc] initWithAttachment:attach]];
-        if (@available(macOS 13.0, *)) {
-            NSURL *iso = [[NSURL alloc] initFileURLWithPath:[NSString stringWithUTF8String:vm->rimg]];
-            attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:iso readOnly:YES error:&err];
-            if (attach == nil || err != nil) {
-                NMLI_LOG_VAR("Failed to load %s store. %s\n", vm->rimg, err.localizedDescription.UTF8String);
-                return -4;
-            }
-            [storageDevices addObject:[[VZUSBMassStorageDeviceConfiguration alloc] initWithAttachment:attach]];
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+        NSURL *iso = [[NSURL alloc] initFileURLWithPath:[NSString stringWithUTF8String:vm->rimg]];
+        attach = [[VZDiskImageStorageDeviceAttachment alloc] initWithURL:iso readOnly:YES error:&err];
+        if (attach == nil || err != nil) {
+            NMLI_LOG_VAR("Failed to load %s store. %s\n", vm->rimg, err.localizedDescription.UTF8String);
+            return -4;
         }
+        [storageDevices addObject:[[VZUSBMassStorageDeviceConfiguration alloc] initWithAttachment:attach]];
+#endif
         cfg.storageDevices = [storageDevices copy];
         
         if (vm->net == NMLIVM_NET_NAT) {
@@ -92,14 +90,14 @@ extern int gen_linux_vm(NMLIVM *vm) {
             cfg.networkDevices = [array copy];
         }
         
-        if (@available(macOS 13.0, *)) {
-            VZVirtioGraphicsDeviceConfiguration *graphics = [[VZVirtioGraphicsDeviceConfiguration alloc] init];
-            graphics.scanouts = @[
-                [[VZVirtioGraphicsScanoutConfiguration alloc] initWithWidthInPixels:vm->graphics_width_pixels
-                                                                     heightInPixels:vm->graphics_height_pixels]
-            ];
-            cfg.graphicsDevices = @[graphics];
-        }
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+        VZVirtioGraphicsDeviceConfiguration *graphics = [[VZVirtioGraphicsDeviceConfiguration alloc] init];
+        graphics.scanouts = @[
+            [[VZVirtioGraphicsScanoutConfiguration alloc] initWithWidthInPixels:vm->graphics_width_pixels
+                                                                 heightInPixels:vm->graphics_height_pixels]
+        ];
+        cfg.graphicsDevices = @[graphics];
+#endif
 
         VZVirtioSoundDeviceConfiguration *audiocfg = [[VZVirtioSoundDeviceConfiguration alloc] init];
         VZVirtioSoundDeviceInputStreamConfiguration *audioInStream = [[VZVirtioSoundDeviceInputStreamConfiguration alloc] init];
@@ -112,25 +110,25 @@ extern int gen_linux_vm(NMLIVM *vm) {
         cfg.keyboards = @[[[VZUSBKeyboardConfiguration alloc] init]];
         cfg.pointingDevices = @[[[VZUSBScreenCoordinatePointingDeviceConfiguration alloc] init]];
         
-        if (@available(macOS 13.0, *)) {
-            VZVirtioConsoleDeviceConfiguration *console = [[VZVirtioConsoleDeviceConfiguration alloc] init];
-            VZVirtioConsolePortConfiguration *consolePort = [[VZVirtioConsolePortConfiguration alloc] init];
-            consolePort.name = VZSpiceAgentPortAttachment.spiceAgentPortName;
-            console.ports[0] = consolePort;
-            cfg.consoleDevices = @[console];
-        } else {
-            NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
-            NSFileHandle *output = NSFileHandle.fileHandleWithStandardOutput;
-            struct termios attr;
-            tcgetattr(input.fileDescriptor, &attr);
-            attr.c_iflag &= ~ICRNL;
-            attr.c_lflag &= ~(ICANON | ECHO);
-            tcsetattr(input.fileDescriptor, TCSANOW, &attr);
-            VZFileHandleSerialPortAttachment *fattach = [[VZFileHandleSerialPortAttachment alloc] initWithFileHandleForReading:input fileHandleForWriting:output];
-            VZVirtioConsoleDeviceSerialPortConfiguration *console = [[VZVirtioConsoleDeviceSerialPortConfiguration alloc] init];
-            console.attachment = fattach;
-            cfg.serialPorts = @[console];
-        }
+#if __OSX_AVAILABLE_STARTING(__MAC_13_0, __IPHONE_NA)
+        VZVirtioConsoleDeviceConfiguration *console = [[VZVirtioConsoleDeviceConfiguration alloc] init];
+        VZVirtioConsolePortConfiguration *consolePort = [[VZVirtioConsolePortConfiguration alloc] init];
+        consolePort.name = VZSpiceAgentPortAttachment.spiceAgentPortName;
+        console.ports[0] = consolePort;
+        cfg.consoleDevices = @[console];
+#else
+        NSFileHandle *input = NSFileHandle.fileHandleWithStandardInput;
+        NSFileHandle *output = NSFileHandle.fileHandleWithStandardOutput;
+        struct termios attr;
+        tcgetattr(input.fileDescriptor, &attr);
+        attr.c_iflag &= ~ICRNL;
+        attr.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(input.fileDescriptor, TCSANOW, &attr);
+        VZFileHandleSerialPortAttachment *fattach = [[VZFileHandleSerialPortAttachment alloc] initWithFileHandleForReading:input fileHandleForWriting:output];
+        VZVirtioConsoleDeviceSerialPortConfiguration *console = [[VZVirtioConsoleDeviceSerialPortConfiguration alloc] init];
+        console.attachment = fattach;
+        cfg.serialPorts = @[console];
+#endif
         
         if (![cfg validateWithError:&err]) {
             NMLI_LOG_VAR("No supported linux configuration. %s\n", err.localizedDescription.UTF8String);
